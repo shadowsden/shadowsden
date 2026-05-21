@@ -1,0 +1,64 @@
+# ============================================================
+# GitHub Actions: Auto-generate /images/index.json
+# Runs when you push new images to the repo.
+# Sorts images by Git commit timestamp (newest first).
+# ============================================================
+
+name: Generate Image Index
+
+on:
+  push:
+    branches: [main]
+    paths: ['images/**']
+
+permissions:
+  contents: write
+
+jobs:
+  generate-index:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate images/index.json
+        run: |
+          python3 << 'PYEOF'
+          import subprocess, json, os
+
+          images_dir = 'images'
+          valid_ext  = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'}
+
+          files = [f for f in os.listdir(images_dir)
+                   if os.path.splitext(f)[1].lower() in valid_ext]
+
+          def get_ts(filename):
+              try:
+                  r = subprocess.run(
+                      ['git', 'log', '--follow', '--diff-filter=A', '--format=%ct', '--',
+                       os.path.join(images_dir, filename)],
+                      capture_output=True, text=True)
+                  for line in r.stdout.strip().split('\n'):
+                      if line.strip():
+                          return int(line.strip())
+              except: pass
+              return 0
+
+          stamped = sorted([(f, get_ts(f)) for f in files], key=lambda x: x[1], reverse=True)
+          ordered = [f for f, _ in stamped]
+
+          with open(os.path.join(images_dir, 'index.json'), 'w') as out:
+              json.dump(ordered, out, indent=2)
+
+          print(f"Wrote index.json with {len(ordered)} images")
+          PYEOF
+
+      - name: Commit index.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add images/index.json
+          git diff --staged --quiet || git commit -m "chore: update images/index.json [skip ci]"
+          git push

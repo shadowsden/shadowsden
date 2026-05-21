@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Books – Shadow's Den</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .coming-soon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 24px;
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+      text-align: center;
+    }
+
+    .coming-soon .moon { font-size: 64px; color: var(--gold); margin-bottom: 20px; opacity: 0.7; }
+    .coming-soon h2 { font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+    .coming-soon p { font-size: 16px; color: var(--muted); max-width: 380px; line-height: 1.6; }
+
+    /* ── BOOK CARDS (shown when you have books) ──
+       To add a book: copy one .book-card div and fill in your details.
+       Keep .book-grid visible and hide .coming-soon by adding display:none to it.
+    */
+    .book-grid {
+      display: none; /* Change to: display:grid; when you have books */
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 24px;
+    }
+
+    .book-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .book-card:hover {
+      border-color: var(--gold);
+      box-shadow: 0 0 24px rgba(201,168,76,0.1);
+    }
+
+    .book-cover {
+      width: 100%;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+      background: #0f2a18;
+    }
+
+    .book-body { padding: 20px; }
+    .book-body h2 { color: var(--text); font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .book-body p { color: var(--muted); font-size: 14px; line-height: 1.6; margin-bottom: 16px; }
+    .book-body a { color: var(--gold); font-size: 13px; font-family: monospace; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="page-inner">
+      <div class="section-header">
+        <h1>Books</h1>
+        <div class="gold-line"></div>
+      </div>
+
+      <!-- COMING SOON STATE (hide this when you have books) -->
+      <div class="coming-soon">
+        <div class="moon">☽</div>
+        <h2>Coming Soon</h2>
+        <p>No books published yet — but something is brewing in the shadows. Check back soon.</p>
+        <div class="gold-line" style="margin-top:24px;"></div>
+      </div>
+
+      <!-- BOOK GRID (show this when you have books, add more .book-card divs below) -->
+      <div class="book-grid">
+
+        <!-- ── BOOK TEMPLATE ──
+             Copy this block for each book you publish.
+             Fill in: cover image src, title, description, and link.
+        -->
+        <div class="book-card">
+          <img class="book-cover" src="images/my-book-cover.jpg" alt="Book Title">
+          <div class="book-body">
+            <h2>Book Title Here</h2>
+            <p>A short description of what this book is about. Keep it to 2-3 sentences.</p>
+            <a href="https://your-book-link.com">Read more →</a>
+          </div>
+        </div>
+        <!-- ── END BOOK TEMPLATE ── -->
+
+      </div>
+    </div>
+  </main>
+
+  <script src="components.js"></script>
+</body>
+</html>

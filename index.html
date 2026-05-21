@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shadow's Den</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── HOME HERO ── */
+    .hero {
+      text-align: center;
+      padding: 80px 24px 64px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .hero .moon { font-size: 48px; color: var(--gold); margin-bottom: 24px; }
+
+    .hero h1 {
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      margin-bottom: 16px;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.6;
+    }
+
+    /* ── CARDS ── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 1104px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+    }
+
+    .card:hover {
+      border-color: var(--gold);
+      box-shadow: 0 0 24px rgba(201,168,76,0.1);
+      transform: translateY(-3px);
+    }
+
+    .card-img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: #0f2a18;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      color: var(--accent);
+      opacity: 0.5;
+    }
+
+    .card-body { padding: 20px 24px 24px; }
+
+    .card-body h2 {
+      color: var(--text);
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .card-body p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="moon">☽</div>
+      <h1>Welcome to Shadow's Den</h1>
+      <p>My personal space for stories, photography, and everything in between.</p>
+    </section>
+
+    <!-- CARDS -->
+    <div class="cards">
+      <a href="books.html" class="card">
+        <div class="card-img">📚</div>
+        <div class="card-body">
+          <h2>Books</h2>
+          <p>Take a look at my Books</p>
+        </div>
+      </a>
+
+      <a href="gallery.html" class="card">
+        <div class="card-img">📷</div>
+        <div class="card-body">
+          <h2>Gallery</h2>
+          <p>Take a look at the Gallery</p>
+        </div>
+      </a>
+    </div>
+  </main>
+
+  <script src="components.js"></script>
+</body>
+</html>
