@@ -1,16 +1,15 @@
-# ☽ Hey, I'm ShadowDaFolf
+# Hey, I'm ShadowDaFolf
 
-Writer, photographer, and creative wandering through the shadows.
+Im a writer and a photographer.
 
 ## What I'm Working On
 
-📖 Currently writing a story about **Shadow** — a wolf-fox hybrid and the adventures and experiences that make up his life. It's been living in my head for a while and I'm finally putting it on paper.
-
+Currently writing a story about **Shadow** — a wolf-fox hybrid and the adventures and experiences that make up his life.
 ## What I'm Into
 
-- 🐾 Writing stories about anthropomorphic animals and the lives they live
-- 📷 Photography — capturing the quiet moments most people walk past
-- 🌙 Creating worlds and characters that feel real
+-  Writing stories about anthropomorphic animals
+-  Photography
+-  Adventureing
 
 ## Find Me
 
