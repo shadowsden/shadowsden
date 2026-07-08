@@ -102,7 +102,7 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/photoswipe@5.4.3/dist/umd/photoswipe.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/photoswipe@5.4.3/dist/umd/photoswipe-lightbox.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/photoswipe@5.4.3/dist/umd/photoswipe-lightbox.umd.min.js"></script>
   <script>
   (function () {
     const IMAGES_PATH = './images/';
@@ -137,27 +137,7 @@
         return;
       }
 
-      function initLightbox() {
-  lightbox = new PhotoSwipeLightbox({
-    pswpModule: PhotoSwipe,
-    bgOpacity: 0.95,
-    showHideAnimationType: 'zoom',
-    closeOnVerticalDrag: true,
-  });
-
-  lightbox.addFilter('numItems', () => imageList.length);
-
-  lightbox.addFilter('itemData', (itemData, index) => {
-    const item = pswpItems[index] || {};
-    return {
-      src: item.src || '',
-      width: item.w || 1200,
-      height: item.h || 900,
-    };
-  });
-
-  lightbox.init();
-}
+      initLightbox();
       loadNextBatch();
     }
 
@@ -176,7 +156,7 @@
     }
 
     function loadNextBatch() {
-  if (loading || exhausted || imageList.length === 0) return;
+      if (loading || exhausted || imageList.length === 0) return;
       loading = true;
 
       const batch = imageList.slice(cursor, cursor + BATCH_SIZE);
@@ -223,19 +203,23 @@
 
     function initLightbox() {
       lightbox = new PhotoSwipeLightbox({
-        dataSource: {
-          getItemData: (i) => ({
-            src: (pswpItems[i] || {}).src || '',
-            width: (pswpItems[i] || {}).w || 1200,
-            height: (pswpItems[i] || {}).h || 900,
-          }),
-          getItemsCount: () => imageList.length,
-        },
         pswpModule: PhotoSwipe,
         bgOpacity: 0.95,
         showHideAnimationType: 'zoom',
         closeOnVerticalDrag: true,
       });
+
+      lightbox.addFilter('numItems', () => imageList.length);
+
+      lightbox.addFilter('itemData', (itemData, index) => {
+        const item = pswpItems[index] || {};
+        return {
+          src: item.src || '',
+          width: item.w || 1200,
+          height: item.h || 900,
+        };
+      });
+
       lightbox.init();
     }
 
