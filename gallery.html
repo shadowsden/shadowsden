@@ -179,11 +179,11 @@
         const img = document.createElement('img');
         img.loading = 'lazy';
         img.alt = filename;
+        item.appendChild(img);
         img.src = IMAGES_PATH + filename;
 
         img.onload = function () {
           skel.remove();
-          item.appendChild(img);
           requestAnimationFrame(() => img.classList.add('loaded'));
           pswpItems[idx] = { src: img.src, w: img.naturalWidth, h: img.naturalHeight };
         };
