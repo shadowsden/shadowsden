@@ -156,7 +156,7 @@
     }
 
     function loadNextBatch() {
-      if (loading || exhausted) return;
+  if (loading || exhausted || imageList.length === 0) return;
       loading = true;
 
       const batch = imageList.slice(cursor, cursor + BATCH_SIZE);
