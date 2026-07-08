@@ -9,7 +9,7 @@
   <style>
     #gallery-wrap { padding: 48px 24px; max-width: 1200px; margin: 0 auto; }
 
-    /* Masonry grid */
+    /* Masonry grid — change "columns" below to control how many photos per row */
     #gallery-grid {
       columns: 3;
       column-gap: 6px;
@@ -32,9 +32,11 @@
       transition: opacity 0.4s ease, transform 0.3s ease;
     }
 
+    /* Fade-in once a photo finishes loading */
     .gallery-item img.loaded { opacity: 1; }
     .gallery-item:hover img { transform: scale(1.03); }
 
+    /* Shimmering placeholder shown before a photo finishes loading */
     .skeleton {
       width: 100%;
       padding-top: 75%;
@@ -48,6 +50,7 @@
       100% { background-position: -200% 0; }
     }
 
+    /* Loading spinner shown at the bottom while more photos are fetched */
     #gallery-sentinel {
       width: 100%;
       height: 60px;
@@ -67,6 +70,7 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* Shown only if there are zero photos to display */
     #gallery-empty {
       display: none;
       flex-direction: column;
@@ -80,6 +84,7 @@
 
     #gallery-empty .moon { font-size: 48px; color: var(--gold); margin-bottom: 16px; }
 
+    /* Responsive: fewer columns on smaller screens */
     @media (max-width: 900px) { #gallery-grid { columns: 2; } }
     @media (max-width: 500px) { #gallery-grid { columns: 1; } }
   </style>
@@ -92,8 +97,13 @@
         <div class="gold-line"></div>
       </div>
 
+      <!-- Photos get inserted into this empty div by the script below -->
       <div id="gallery-grid"></div>
+
+      <!-- Spinner shown while more photos are loading; hidden once done -->
       <div id="gallery-sentinel"><div class="spinner" id="spinner"></div></div>
+
+      <!-- Shown only when images/index.json has zero photos -->
       <div id="gallery-empty">
         <div class="moon">☽</div>
         <p>No images yet.<br></p>
@@ -101,33 +111,46 @@
     </div>
   </main>
 
+  <!-- PhotoSwipe library: powers the "click to enlarge" popup viewer.
+       NOTE: must use the /umd/ folder + ".umd.min.js" filenames — the
+       plain "photoswipe.min.js" path does not exist and will 404. -->
   <script src="https://cdn.jsdelivr.net/npm/photoswipe@5.4.3/dist/umd/photoswipe.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/photoswipe@5.4.3/dist/umd/photoswipe-lightbox.umd.min.js"></script>
+
   <script>
   (function () {
-    const IMAGES_PATH = './images/';
-    const INDEX_FILE  = './images/index.json';
-    const BATCH_SIZE  = 12;
+    // ── SETTINGS ──────────────────────────────────────────────
+    // Where photos live, and how many load at a time.
+    const IMAGES_PATH = './images/';           // folder containing your photos
+    const INDEX_FILE  = './images/index.json'; // auto-generated list of filenames
+    const BATCH_SIZE  = 12;                    // photos loaded per "page" as you scroll
 
+    // ── DOM ELEMENTS ──────────────────────────────────────────
     const grid     = document.getElementById('gallery-grid');
     const sentinel = document.getElementById('gallery-sentinel');
     const spinner  = document.getElementById('spinner');
     const empty    = document.getElementById('gallery-empty');
 
-    let imageList = [];
-    let cursor    = 0;
+    // ── STATE ─────────────────────────────────────────────────
+    let imageList = [];   // full list of filenames to show, from index.json
+    let cursor    = 0;    // how many photos have been added to the grid so far
     let loading   = false;
-    let exhausted = false;
-    let pswpItems = [];
-    let lightbox  = null;
+    let exhausted = false; // true once every photo has been loaded
+    let pswpItems = [];    // { src, w, h } for each photo, used by the lightbox popup
+    let lightbox  = null;  // the PhotoSwipe lightbox instance
 
+    // ── STEP 1: Load the list of photo filenames ────────────────
+    // Reads images/index.json (a simple array of filenames, e.g. ["Bloom.png"]).
+    // This file is auto-generated — don't hand-edit it, just add/remove
+    // photos in the images/ folder and it updates itself.
     async function loadIndex() {
       try {
-        const res = await fetch(INDEX_FILE + '?_=' + Date.now());
+        const res = await fetch(INDEX_FILE + '?_=' + Date.now()); // cache-bust
         if (!res.ok) throw new Error('not found');
         const data = await res.json();
         imageList = Array.isArray(data) ? data : (data.images || []);
       } catch {
+        // Fallback if index.json is missing: guess filenames are 1.jpg, 2.jpg, ...
         imageList = await buildNumericList();
       }
 
@@ -137,10 +160,12 @@
         return;
       }
 
-      initLightbox();
-      loadNextBatch();
+      initLightbox();  // set up the "click to enlarge" popup
+      loadNextBatch(); // start filling the grid
     }
 
+    // Fallback only used if index.json can't be found at all.
+    // Only detects sequential files named 1.jpg, 2.jpg, 3.jpg, etc.
     async function buildNumericList() {
       const list = [];
       let i = 1;
@@ -155,6 +180,9 @@
       return list;
     }
 
+    // ── STEP 2: Add photos to the grid, a batch at a time ───────
+    // Called on page load, and again each time the spinner scrolls into view
+    // (infinite scroll), until every photo in imageList has been added.
     function loadNextBatch() {
       if (loading || exhausted || imageList.length === 0) return;
       loading = true;
@@ -168,10 +196,12 @@
       }
 
       batch.forEach((filename, bi) => {
-        const idx = cursor + bi;
+        const idx = cursor + bi; // this photo's position in the full imageList
+
         const item = document.createElement('div');
         item.className = 'gallery-item';
 
+        // Shimmering placeholder shown until the photo finishes loading
         const skel = document.createElement('div');
         skel.className = 'skeleton';
         item.appendChild(skel);
@@ -179,16 +209,26 @@
         const img = document.createElement('img');
         img.loading = 'lazy';
         img.alt = filename;
+
+        // IMPORTANT: attach img to the page BEFORE setting its src.
+        // With loading="lazy", the browser only starts fetching an image
+        // once it can tell whether it's near the screen — which it can't
+        // do for an element that isn't in the page yet. Setting src first
+        // would cause the photo to silently never load.
         item.appendChild(img);
         img.src = IMAGES_PATH + filename;
 
         img.onload = function () {
           skel.remove();
-          requestAnimationFrame(() => img.classList.add('loaded'));
+          requestAnimationFrame(() => img.classList.add('loaded')); // fade in
+          // Save this photo's real size for the lightbox popup to use later
           pswpItems[idx] = { src: img.src, w: img.naturalWidth, h: img.naturalHeight };
         };
 
+        // If a photo fails to load (missing file, bad filename, etc.),
+        // just remove its empty tile instead of leaving a broken box.
         img.onerror = () => item.remove();
+
         item.addEventListener('click', () => openLightbox(idx));
         grid.appendChild(item);
       });
@@ -201,6 +241,10 @@
       loading = false;
     }
 
+    // ── STEP 3: Set up the "click to enlarge" popup viewer ──────
+    // Uses PhotoSwipe's official "filters" approach for dynamically-generated
+    // galleries (rather than a fixed dataSource array), since our photo list
+    // grows over time as the user scrolls.
     function initLightbox() {
       lightbox = new PhotoSwipeLightbox({
         pswpModule: PhotoSwipe,
@@ -209,13 +253,15 @@
         closeOnVerticalDrag: true,
       });
 
+      // Tells PhotoSwipe how many total photos exist right now
       lightbox.addFilter('numItems', () => imageList.length);
 
+      // Tells PhotoSwipe what to show for a given photo index
       lightbox.addFilter('itemData', (itemData, index) => {
         const item = pswpItems[index] || {};
         return {
           src: item.src || '',
-          width: item.w || 1200,
+          width: item.w || 1200,  // fallback size if not loaded yet
           height: item.h || 900,
         };
       });
@@ -227,10 +273,14 @@
       if (lightbox) lightbox.loadAndOpen(index);
     }
 
+    // ── STEP 4: Infinite scroll ──────────────────────────────────
+    // Watches the spinner at the bottom of the grid; loads the next batch
+    // of photos whenever it scrolls into view.
     new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting && !exhausted) loadNextBatch();
     }, { rootMargin: '200px' }).observe(sentinel);
 
+    // Kick everything off
     loadIndex();
   })();
   </script>
