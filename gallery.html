@@ -137,7 +137,27 @@
         return;
       }
 
-      initLightbox();
+      function initLightbox() {
+  lightbox = new PhotoSwipeLightbox({
+    pswpModule: PhotoSwipe,
+    bgOpacity: 0.95,
+    showHideAnimationType: 'zoom',
+    closeOnVerticalDrag: true,
+  });
+
+  lightbox.addFilter('numItems', () => imageList.length);
+
+  lightbox.addFilter('itemData', (itemData, index) => {
+    const item = pswpItems[index] || {};
+    return {
+      src: item.src || '',
+      width: item.w || 1200,
+      height: item.h || 900,
+    };
+  });
+
+  lightbox.init();
+}
       loadNextBatch();
     }
 
