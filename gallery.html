@@ -216,21 +216,34 @@
         // do for an element that isn't in the page yet. Setting src first
         // would cause the photo to silently never load.
         item.appendChild(img);
-        img.src = IMAGES_PATH + filename;
-img.onload = function () {
-  skel.remove();
-  requestAnimationFrame(() => img.classList.add('loaded')); // fade in
-  // Save this photo's real size for the lightbox popup to use later
-  pswpItems[idx] = { src: img.src, w: img.naturalWidth, h: img.naturalHeight };
-  // Only allow clicking to open the popup once the image is actually ready
-  item.addEventListener('click', () => openLightbox(idx));
-};
+        // FIX: encode the filename before building the URL. Filenames with
+        // spaces, parentheses, or other special characters (e.g. a phone's
+        // auto-generated "photo (1).jpg") would otherwise fail to load
+        // silently — no error, no network request, the tile just never
+        // appears. encodeURIComponent() converts those characters into
+        // safe URL-escaped versions (e.g. a space becomes %20) so any
+        // filename works without needing to be renamed by hand.
+        img.src = IMAGES_PATH + encodeURIComponent(filename);
 
-// If a photo fails to load (missing file, bad filename, etc.),
-// just remove its empty tile instead of leaving a broken box.
-img.onerror = () => item.remove();
+        img.onload = function () {
+          skel.remove();
+          requestAnimationFrame(() => img.classList.add('loaded')); // fade in
+          // Save this photo's real size for the lightbox popup to use later
+          pswpItems[idx] = { src: img.src, w: img.naturalWidth, h: img.naturalHeight };
+          // FIX: only make the tile clickable once the photo has actually
+          // finished loading. Previously the click listener was attached
+          // immediately below (outside onload), so clicking a tile while
+          // it still showed the skeleton placeholder would open the
+          // lightbox before pswpItems[idx] existed, producing a broken/
+          // blank popup. Moving it here closes that timing gap.
+          item.addEventListener('click', () => openLightbox(idx));
+        };
 
-grid.appendChild(item);
+        // If a photo fails to load (missing file, bad filename, etc.),
+        // just remove its empty tile instead of leaving a broken box.
+        img.onerror = () => item.remove();
+
+        grid.appendChild(item);
       });
 
       cursor += batch.length;
@@ -286,4 +299,5 @@ grid.appendChild(item);
   </script>
   <script src="components.js"></script>
 </body>
+</html>
 </html>
