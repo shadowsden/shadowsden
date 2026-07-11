@@ -217,20 +217,20 @@
         // would cause the photo to silently never load.
         item.appendChild(img);
         img.src = IMAGES_PATH + filename;
+img.onload = function () {
+  skel.remove();
+  requestAnimationFrame(() => img.classList.add('loaded')); // fade in
+  // Save this photo's real size for the lightbox popup to use later
+  pswpItems[idx] = { src: img.src, w: img.naturalWidth, h: img.naturalHeight };
+  // Only allow clicking to open the popup once the image is actually ready
+  item.addEventListener('click', () => openLightbox(idx));
+};
 
-        img.onload = function () {
-          skel.remove();
-          requestAnimationFrame(() => img.classList.add('loaded')); // fade in
-          // Save this photo's real size for the lightbox popup to use later
-          pswpItems[idx] = { src: img.src, w: img.naturalWidth, h: img.naturalHeight };
-        };
+// If a photo fails to load (missing file, bad filename, etc.),
+// just remove its empty tile instead of leaving a broken box.
+img.onerror = () => item.remove();
 
-        // If a photo fails to load (missing file, bad filename, etc.),
-        // just remove its empty tile instead of leaving a broken box.
-        img.onerror = () => item.remove();
-
-        item.addEventListener('click', () => openLightbox(idx));
-        grid.appendChild(item);
+grid.appendChild(item);
       });
 
       cursor += batch.length;
