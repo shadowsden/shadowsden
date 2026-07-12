@@ -1,6 +1,6 @@
 # Hey, I'm ShadowTheFolf
 
-Im a writer and a photographer.
+Im a Writer and a Photographer.
 
 ## What I'm Working On
 
@@ -10,6 +10,8 @@ Currently writing a story about **Shadow** — a wolf-fox hybrid and the adventu
 -  Writing stories about anthropomorphic animals
 -  Photography
 -  Adventureing
+-  Camping
+-  Stargazing
 
 ## Find Me
 
